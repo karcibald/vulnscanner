@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vulnerability Scan Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+    th { background: #444; color: white; cursor: pointer; }
+    tr:nth-child(even) { background: #f2f2f2; }
+    h1 { margin-bottom: 20px; }
+    .open { color: red; font-weight: bold; }
+    .filter-bar { margin-bottom: 20px; }
+    .filter-bar label { margin-right: 8px; }
+  </style>
+  <script>
+    function filterByState() {
+      const filter = document.getElementById("stateFilter").value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const state = row.querySelector("td:nth-child(3)").textContent.toLowerCase();
+        row.style.display = (!filter || state === filter) ? "" : "none";
+      });
+    }
+
+    function sortTable(n) {
+      const table = document.getElementById("scanTable");
+      let switching = true;
+      let dir = "asc"; 
+      let switchcount = 0;
+
+      while (switching) {
+        switching = false;
+        const rows = table.rows;
+
+        for (let i = 1; i < rows.length - 1; i++) {
+          let shouldSwitch = false;
+          const x = rows[i].getElementsByTagName("TD")[n];
+          const y = rows[i + 1].getElementsByTagName("TD")[n];
+
+          const xVal = isNaN(x.innerHTML) ? x.innerHTML.toLowerCase() : parseInt(x.innerHTML);
+          const yVal = isNaN(y.innerHTML) ? y.innerHTML.toLowerCase() : parseInt(y.innerHTML);
+
+          if ((dir === "asc" && xVal > yVal) || (dir === "desc" && xVal < yVal)) {
+            shouldSwitch = true;
+            break;
+          }
+        }
+
+        if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+          switchcount++;
+        } else if (switchcount === 0 && dir === "asc") {
+          dir = "desc";
+          switching = true;
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>🔍 Vulnerability Scan Dashboard</h1>
+
+  <div class="filter-bar">
+    <label>Filter by State:</label>
+    <select id="stateFilter" onchange="filterByState()">
+      <option value="">All</option>
+      <option value="open">Open</option>
+      <option value="closed">Closed</option>
+      <option value="filtered">Filtered</option>
+    </select>
+  </div>
+
+  <table id="scanTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Host</th>
+        <th onclick="sortTable(1)">Port</th>
+        <th onclick="sortTable(2)">State</th>
+        <th onclick="sortTable(3)">Time</th>
+        <th onclick="sortTable(4)">Country</th>
+        <th onclick="sortTable(5)">City</th>
+        <th onclick="sortTable(6)">Region</th>
+        <th onclick="sortTable(7)">ISP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in scans %}
+      <tr>
+        <td>{{ item.Host }}</td>
+        <td>{{ item.Port }}</td>
+        <td class="{{ 'open' if item.State == 'open' else '' }}">{{ item.State }}</td>
+        <td>{{ item.Timestamp }}</td>
+        <td>{{ item.Country }}</td>
+        <td>{{ item.City }}</td>
+        <td>{{ item.Region }}</td>
+        <td>{{ item.ISP }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

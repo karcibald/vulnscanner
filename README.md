@@ -24,8 +24,6 @@ A cloud-hosted vulnerability management system that:
 
 ## 🖼️ Lab Output Evidence
 
-![Lab Screenshot](vulnscan_lab_evidence.jpg)
-
 ## 🚀 How to Run
 
 ```bash
